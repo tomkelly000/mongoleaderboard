@@ -22,11 +22,12 @@ var default_options = {
 
 // constructor for making a new leaderboard
 function LeaderBoard(dburi, _options) {
-
+    this.options = {};
     // clone the object
     this.options.collection = default_options.collection;
     this.options.page_size = default_options.page_size;
     this.options.num_pages = default_options.num_pages;
+    this.start_time = {};
     this.start_time.milliseconds = default_options.start_time.milliseconds;
     this.start_time.seconds = default_options.start_time.seconds;
     this.start_time.minutes = default_options.start_time.minutes;
@@ -84,14 +85,10 @@ function LeaderBoard(dburi, _options) {
 
     var self = this;
     this.refresh.find(null, function(er, time) {
-	    console.log('\n\n\n\n\n\n\n\n\n\n\n');
-	    console.log(self.options);
-	    console.log('\n\n\n\n\n\n\n\n\n\n\n');
 	    if (!time || time.length == 0) {
 		// first time launch
 		// calculate time for next refresh
 		var firstRefresh = new Date(); // starting point
-		console.log(self.options);
 		firstRefresh.setMilliseconds(
 		    self.options.start_time.milliseconds);
 		firstRefresh.setSeconds(

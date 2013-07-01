@@ -68,57 +68,63 @@ function LeaderBoard(dburi, _options) {
 	    this.options.duration = _options.duration;
 	}
     }
+    
     this.options.collection.push(this.options.collection + 'refresh');
     this.db = mongodb.connect(dburi, this.options.collection);
     this.highscores = this.db.collection(this.options.collection[0]);
     this.refresh = this.db.collection(this.options.collection[1]);
-    
-    this.refresh.find(null, function(er, time) {
+
+    var lb = this;
+
+    lb.refresh.find(null, function(er, time) {
+	    console.log('\n\n\n\n\n\n\n\n\n\n\n');
+    console.log(lb.options);
+    console.log('\n\n\n\n\n\n\n\n\n\n\n');
 	    if (!time || time.length == 0) {
 		// first time launch
 		// calculate time for next refresh
 		var firstRefresh = new Date(); // starting point
-		firstRefresh.setMilliseconds(
-	            this.options.start_time.milliseconds);
+		console.log(lb.options);
+		firstRefresh.setMilliseconds(lb.options.start_time.milliseconds);
 		firstRefresh.setSeconds(
-		    this.options.start_time.seconds);
+		    lb.options.start_time.seconds);
 		firstRefresh.setMinutes(
-                    this.options.start_time.minutes);
+                    lb.options.start_time.minutes);
 		firstRefresh.setHours(
-		    this.options.start_time.hours);
+		    lb.options.start_time.hours);
 		var nextRefresh;
-		if (this.options.duration === Number.POSITIVE_INFINITY) {
+		if (lb.options.duration === Number.POSITIVE_INFINITY) {
 		    nextRefresh = Number.POSITIVE_INFINITY;
 		} else {
 		    var nextRefresh = firstRefresh.getTime() +
 			Math.ceil(((new Date()).getTime() - firstRefresh.getTime())
-				  / this.options.duration) * this.options.duration;
+				  / lb.options.duration) * lb.options.duration;
 		}
-		this.refresh.save({'nextRefresh':nextRefresh});	
+		lb.refresh.save({'nextRefresh':nextRefresh});	
 	    }
 	});
 
     // functions
     this.test = function() {
-	return { 'options':this.options, 'db':this.db, 
-		 'collection':this.highscores };
+	return { 'options':lb.options, 'db':lb.db, 
+		 'collection':lb.highscores, 'refresh':lb.refresh };
     }
 
 
-    var limit = this.options.page_size * this.options.num_pages;
+    var limit = lb.options.page_size * lb.options.num_pages;
 
     this.refresher = function(callback) {
 	var curTime = (new Date()).getTime();
-	this.refresh.find({}, function(err, date) {
+	lb.refresh.find({}, function(err, date) {
 		date = date[0];
 	if (curTime > date.nextRefresh) {
 	    var nextRefresh = date.nextRefresh +
-		Math.ceil((curTime - date.nextRefresh) / this.options.duration)
-		* this.options.duration;
+		Math.ceil((curTime - date.nextRefresh) / lb.options.duration)
+		* lb.options.duration;
 	    // update next refresh in database
-	    this.refresh.update({}, {$set:{'nextRefresh':nextRefresh}});
+	    lb.refresh.update({}, {$set:{'nextRefresh':nextRefresh}});
 	    // it's time to refresh
-	    this.highscores.remove(callback);
+	    lb.highscores.remove(callback);
 	} else {
 	    callback();
 	}
@@ -129,8 +135,8 @@ function LeaderBoard(dburi, _options) {
     // if the score is a high score, otherwise
     // pass  false (0)
     this.check = function(score, callback) {
-      this.refresher(function() {
-	this.highscores.find().sort({score:1}, function(err, scores) {
+      lb.refresher(function() {
+	lb.highscores.find().sort({score:1}, function(err, scores) {
 		if (!scores || scores.length < limit) {
 		    // we'll take any scores at this point!
 		    callback(1);
@@ -151,17 +157,17 @@ function LeaderBoard(dburi, _options) {
     this.postHighScore = function(highscore, member, callback, force) {
 	if (arguments.length <= 3) force = false;
 	member.score = highscore; // set the score 
-      this.refresher(function() {
-	this.highscores.find().sort({score:1}, function(err, scores) {
+      lb.refresher(function() {
+	lb.highscores.find().sort({score:1}, function(err, scores) {
 		if (!scores || scores.length < limit) {
 		    // leaderboard isn't full yet go ahead and save
-		    this.highscores.save(member, {safe:true},
+		    lb.highscores.save(member, {safe:true},
 				    function(err, score)
 				    {callback(err, score)});
 		} else {
 		    // overwrite lowest score unless force is supplied
 		    if (highscore > scores[0].score || force) {
-			this.highscores.update({_id:scores[0]._id},
+			lb.highscores.update({_id:scores[0]._id},
 					  member, {safe:true},
 					  function(err, score)
 					  {callback(err, score)});
@@ -179,8 +185,8 @@ function LeaderBoard(dburi, _options) {
     // executes the callback on the two arguments err and scores,
     // where scores is an array of objects
     this.getHighScores = function(callback) {
-      this.refresher(function() {
-	this.highscores.find().sort({score:-1}, function(err, scores)
+      lb.refresher(function() {
+	lb.highscores.find().sort({score:-1}, function(err, scores)
                                             {callback(err, scores)});
 	  });
     }
@@ -193,8 +199,8 @@ function LeaderBoard(dburi, _options) {
 	page_num = page_num - 1; // pages start at 1 instead of 0
 	assert(page_num >= 0 && page_num < options.num_pages, 
 	       'Invalid page number');
-      this.refresher(function() {
-	this.highscores.find().sort({score:-1}, function(err, scores) {
+      lb.refresher(function() {
+	lb.highscores.find().sort({score:-1}, function(err, scores) {
 		if (scores) {
 		    var index = page_num * options.page_size;
 		    var page = scores.splice(index, options.page_size);

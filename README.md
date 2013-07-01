@@ -15,7 +15,7 @@ You can also specify options
 var options = {};
 // specify a leaderboard at collection named highscores
 // with page sizes of 5, 2 pages, that refreshes daily at 5:00
-options.collection = 'highscores'; // defaults to 'leaderboard'
+options.collection = 'highscores'; // defaults to leaderboard
 options.page_size = 5; // defaults to 20
 options.num_pages = 2; // defaults to 1
 options.start_time = { // time of day to refresh
@@ -45,7 +45,9 @@ leaderboard.post(highscore, member, callback, force);
 
 // executes the callback on the two arguments err and scores,
 // where scores is an array of objects
-leaderboard.getHighScores(callback)
+leaderboard.getHighScores(callback);
+// also aliased as
+leaderboard.get(callback);
 ```
 
 

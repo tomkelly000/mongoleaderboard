@@ -27,12 +27,12 @@ function LeaderBoard(dburi, _options) {
     this.options.collection = default_options.collection;
     this.options.page_size = default_options.page_size;
     this.options.num_pages = default_options.num_pages;
-    this.start_time = {};
-    this.start_time.milliseconds = default_options.start_time.milliseconds;
-    this.start_time.seconds = default_options.start_time.seconds;
-    this.start_time.minutes = default_options.start_time.minutes;
-    this.start_time.hours = default_options.start_time.hours;
-    this.start_time.duration = default_options.duration;
+    this.options.start_time = {};
+    this.options.start_time.milliseconds = default_options.start_time.milliseconds;
+    this.options.start_time.seconds = default_options.start_time.seconds;
+    this.options.start_time.minutes = default_options.start_time.minutes;
+    this.options.start_time.hours = default_options.start_time.hours;
+    this.options.duration = default_options.duration;
 
     if (_options) {
 	if (_options.collection) 

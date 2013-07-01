@@ -78,10 +78,14 @@ function LeaderBoard(dburi, _options) {
 		// first time launch
 		// calculate time for next refresh
 		var firstRefresh = new Date(); // starting point
-		firstRefresh.setMilliseconds(options.start_time.milliseconds);
-		firstRefresh.setSeconds(options.start_time.seconds);
-		firstRefresh.setMinutes(options.start_time.minutes);
-		firstRefresh.setHours(options.start_time.hours);
+		firstRefresh.setMilliseconds(
+	            this.options.start_time.milliseconds);
+		firstRefresh.setSeconds(
+		    this.options.start_time.seconds);
+		firstRefresh.setMinutes(
+                    this.options.start_time.minutes);
+		firstRefresh.setHours(
+		    this.options.start_time.hours);
 		var nextRefresh;
 		if (this.options.duration === Number.POSITIVE_INFINITY) {
 		    nextRefresh = Number.POSITIVE_INFINITY;

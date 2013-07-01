@@ -25,6 +25,7 @@ options.start_time = { // time of day to refresh
         'hours':5
     }; // defaults to midnight
 options.duration = 1000 * 60 * 60 * 24; // time in milliseconds
+		   	                // defaults to infinity
 var leaderboard = new Leaderboard(mongoUri, options);
 ```
 

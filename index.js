@@ -87,10 +87,14 @@ function LeaderBoard(dburi, _options) {
 		firstRefresh.setSeconds(options.start_time.seconds);
 		firstRefresh.setMinutes(options.start_time.minutes);
 		firstRefresh.setHours(options.start_time.hours);
-		var nextRefresh = firstRefresh.getTime() +
-		    Math.ceil(((new Date()).getTime() - firstRefresh.getTime())
-			      / options.duration) * options.duration;
-		
+		var nextRefresh;
+		if (options.duration === Number.POSITIVE_INFINITY) {
+		    nextRefresh = Number.POSITIVE_INFINITY;
+		} else {
+		    var nextRefresh = firstRefresh.getTime() +
+			Math.ceil(((new Date()).getTime() - firstRefresh.getTime())
+				  / options.duration) * options.duration;
+		}
 		refresh.save({'nextRefresh':nextRefresh});	
 	    }
 	});

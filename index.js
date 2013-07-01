@@ -68,16 +68,17 @@ function LeaderBoard(dburi, _options) {
 	    this.options.duration = _options.duration;
 	}
     }
-    this.options.collection.push('refresh');
+    this.options.collection.push(this.options.collection + 'refresh');
     this.db = mongodb.connect(dburi, this.options.collection);
     this.highscores = this.db.collection(this.options.collection[0]);
-
+    this.refresh = this.db.collection(this.options.collection[1]);
     // so i don't have to keep writing this
     var options = this.options;
     var db = this.db;
     var highscores = this.highscores;
+    var refresh = this.refresh;
 
-    db.refresh.find(null, function(er, time) {
+    refresh.find(null, function(er, time) {
 	    if (!time || time.length == 0) {
 		// first time launch
 		// calculate time for next refresh
@@ -90,7 +91,7 @@ function LeaderBoard(dburi, _options) {
 		    Math.ceil(((new Date()).getTime() - firstRefresh.getTime())
 			      / options.duration) * options.duration;
 		
-		db.refresh.save({'nextRefresh':nextRefresh});	
+		refresh.save({'nextRefresh':nextRefresh});	
 	    }
 	});
 
@@ -105,14 +106,14 @@ function LeaderBoard(dburi, _options) {
 
     this.refresh = function(callback) {
 	var curTime = (new Date()).getTime();
-	db.refresh.find({}, function(err, date) {
+	refresh.find({}, function(err, date) {
 		date = date[0];
 	if (curTime > date.nextRefresh) {
 	    var nextRefresh = date.nextRefresh +
 		Math.ceil((curTime - date.nextRefresh) / options.duration)
 		* options.duration;
 	    // update next refresh in database
-	    db.refresh.update({}, {$set:{'nextRefresh':nextRefresh}});
+	    refresh.update({}, {$set:{'nextRefresh':nextRefresh}});
 	    // it's time to refresh
 	    highscores.remove(callback);
 	} else {

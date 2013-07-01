@@ -78,7 +78,7 @@ function LeaderBoard(dburi, _options) {
     var highscores = this.highscores;
 
     db.refresh.find(null, function(er, time) {
-	    if (time.length == 0) {
+	    if (!time || time.length == 0) {
 		// first time launch
 		// calculate time for next refresh
 		var firstRefresh = new Date(); // starting point

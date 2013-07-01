@@ -101,7 +101,7 @@ function LeaderBoard(dburi, _options) {
     }
 
 
-    var limit = options.page_size * options.num_pages;
+    var limit = this.options.page_size * this.options.num_pages;
 
     this.refresher = function(callback) {
 	var curTime = (new Date()).getTime();

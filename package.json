@@ -1,9 +1,8 @@
 {
 	"name": "mongoleaderboard",
-	"version": "0.0.11",
+	"version": "0.0.12",
 	"author": "Tom Kelly",
 	"dependencies": {
-	 "express": "3.1.x",
 	 "mongojs": "0.7.x",
 	 "assert": "0.4.x"
 	 },

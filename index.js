@@ -72,13 +72,8 @@ function LeaderBoard(dburi, _options) {
     this.db = mongodb.connect(dburi, this.options.collection);
     this.highscores = this.db.collection(this.options.collection[0]);
     this.refresh = this.db.collection(this.options.collection[1]);
-    // so i don't have to keep writing this
-    var options = this.options;
-    var db = this.db;
-    var highscores = this.highscores;
-    var refresh = this.refresh;
-
-    refresh.find(null, function(er, time) {
+    
+    this.refresh.find(null, function(er, time) {
 	    if (!time || time.length == 0) {
 		// first time launch
 		// calculate time for next refresh
@@ -88,38 +83,38 @@ function LeaderBoard(dburi, _options) {
 		firstRefresh.setMinutes(options.start_time.minutes);
 		firstRefresh.setHours(options.start_time.hours);
 		var nextRefresh;
-		if (options.duration === Number.POSITIVE_INFINITY) {
+		if (this.options.duration === Number.POSITIVE_INFINITY) {
 		    nextRefresh = Number.POSITIVE_INFINITY;
 		} else {
 		    var nextRefresh = firstRefresh.getTime() +
 			Math.ceil(((new Date()).getTime() - firstRefresh.getTime())
-				  / options.duration) * options.duration;
+				  / this.options.duration) * this.options.duration;
 		}
-		refresh.save({'nextRefresh':nextRefresh});	
+		this.refresh.save({'nextRefresh':nextRefresh});	
 	    }
 	});
 
     // functions
     this.test = function() {
-	return { 'options':options, 'db':db, 
-		 'collection':highscores };
+	return { 'options':this.options, 'db':this.db, 
+		 'collection':this.highscores };
     }
 
 
     var limit = options.page_size * options.num_pages;
 
-    this.refresh = function(callback) {
+    this.refresher = function(callback) {
 	var curTime = (new Date()).getTime();
-	refresh.find({}, function(err, date) {
+	this.refresh.find({}, function(err, date) {
 		date = date[0];
 	if (curTime > date.nextRefresh) {
 	    var nextRefresh = date.nextRefresh +
-		Math.ceil((curTime - date.nextRefresh) / options.duration)
-		* options.duration;
+		Math.ceil((curTime - date.nextRefresh) / this.options.duration)
+		* this.options.duration;
 	    // update next refresh in database
-	    refresh.update({}, {$set:{'nextRefresh':nextRefresh}});
+	    this.refresh.update({}, {$set:{'nextRefresh':nextRefresh}});
 	    // it's time to refresh
-	    highscores.remove(callback);
+	    this.highscores.remove(callback);
 	} else {
 	    callback();
 	}
@@ -130,8 +125,8 @@ function LeaderBoard(dburi, _options) {
     // if the score is a high score, otherwise
     // pass  false (0)
     this.check = function(score, callback) {
-      this.refresh(function() {
-	highscores.find().sort({score:1}, function(err, scores) {
+      this.refresher(function() {
+	this.highscores.find().sort({score:1}, function(err, scores) {
 		if (!scores || scores.length < limit) {
 		    // we'll take any scores at this point!
 		    callback(1);
@@ -152,17 +147,17 @@ function LeaderBoard(dburi, _options) {
     this.postHighScore = function(highscore, member, callback, force) {
 	if (arguments.length <= 3) force = false;
 	member.score = highscore; // set the score 
-      this.refresh(function() {
-	highscores.find().sort({score:1}, function(err, scores) {
+      this.refresher(function() {
+	this.highscores.find().sort({score:1}, function(err, scores) {
 		if (!scores || scores.length < limit) {
 		    // leaderboard isn't full yet go ahead and save
-		    highscores.save(member, {safe:true},
+		    this.highscores.save(member, {safe:true},
 				    function(err, score)
 				    {callback(err, score)});
 		} else {
 		    // overwrite lowest score unless force is supplied
 		    if (highscore > scores[0].score || force) {
-			highscores.update({_id:scores[0]._id},
+			this.highscores.update({_id:scores[0]._id},
 					  member, {safe:true},
 					  function(err, score)
 					  {callback(err, score)});
@@ -180,8 +175,8 @@ function LeaderBoard(dburi, _options) {
     // executes the callback on the two arguments err and scores,
     // where scores is an array of objects
     this.getHighScores = function(callback) {
-      this.refresh(function() {
-	highscores.find().sort({score:-1}, function(err, scores)
+      this.refresher(function() {
+	this.highscores.find().sort({score:-1}, function(err, scores)
                                             {callback(err, scores)});
 	  });
     }
@@ -194,8 +189,8 @@ function LeaderBoard(dburi, _options) {
 	page_num = page_num - 1; // pages start at 1 instead of 0
 	assert(page_num >= 0 && page_num < options.num_pages, 
 	       'Invalid page number');
-      this.refresh(function() {
-	highscores.find().sort({score:-1}, function(err, scores) {
+      this.refresher(function() {
+	this.highscores.find().sort({score:-1}, function(err, scores) {
 		if (scores) {
 		    var index = page_num * options.page_size;
 		    var page = scores.splice(index, options.page_size);

@@ -111,7 +111,6 @@ function LeaderBoard(dburi, _options) {
 	var curTime = (new Date()).getTime();
 	db.refresh.find({}, function(err, date) {
 		date = date[0];
-		console.log(date)
 	if (curTime > date.nextRefresh) {
 	    var nextRefresh = date.nextRefresh +
 		Math.ceil((curTime - date.nextRefresh) / options.duration)

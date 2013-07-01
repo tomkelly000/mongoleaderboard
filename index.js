@@ -91,10 +91,7 @@ function LeaderBoard(dburi, _options) {
 			      / options.duration) * options.duration;
 		
 		db.refresh.save({'nextRefresh':nextRefresh},
-				function(err, savedtime) {
-				    console.log('asdfasdfasdfdfdf');
-				    console.log(savedtime)});
-		
+				function(err, savedtime) {		
 	    }
 	}); 
 

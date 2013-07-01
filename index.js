@@ -90,10 +90,9 @@ function LeaderBoard(dburi, _options) {
 		    Math.ceil(((new Date()).getTime() - firstRefresh.getTime())
 			      / options.duration) * options.duration;
 		
-		db.refresh.save({'nextRefresh':nextRefresh},
-				function(err, savedtime) {		
+		db.refresh.save({'nextRefresh':nextRefresh});	
 	    }
-	}); 
+	});
 
     // functions
     this.test = function() {

@@ -7,6 +7,7 @@
 	 "mongojs": "0.7.x",
 	 "assert": "0.4.x"
 	 },
+	 "repository": "https://github.com/tomkelly000/mongoleaderboard.git",
 	 "engines": {
 	  "node": "0.10.x",
 	  "npm": "1.2.x"

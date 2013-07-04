@@ -83,6 +83,10 @@ function LeaderBoard(dburi, _options) {
     this.highscores = this.db.collection(this.options.collection[0]);
     this.refresh = this.db.collection(this.options.collection[1]);
 
+    // drop the refresh database
+    // only necessary for development
+    this.refresh.drop();
+
     var self = this;
     this.refresh.find(null, function(er, time) {
 	    if (!time || time.length == 0) {
